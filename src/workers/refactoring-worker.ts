@@ -6,7 +6,7 @@ const { parentPort, workerData } = require('worker_threads')
 
 function run() {
     Options.setOptions(workerData.pathCommand, workerData.modifiedPath, workerData.pathGeneseNodeJs);
-    AutomaticRefactoring.start(workerData.astFolder)
+    AutomaticRefactoring.start(Options.pathCommand, Options.pathFolderToAnalyze)
     parentPort.postMessage(undefined)
 }
 

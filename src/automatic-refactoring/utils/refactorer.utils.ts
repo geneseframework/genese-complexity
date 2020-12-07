@@ -1,4 +1,5 @@
-import { ts } from 'ts-morph';
+import { Block, ts } from 'ts-morph';
+
 
 export class RefactorerUtils {
     /**
@@ -6,10 +7,11 @@ export class RefactorerUtils {
      * @param name the method name
      * @param block the method block node
      * @param parameters the method parameters
+     * @param type
      * @returns {ts.MethodDeclaration}
      */
-    static createSimpleMethod(name: string, block: ts.Block, parameters: ts.ParameterDeclaration[] = []): ts.MethodDeclaration {
-        return ts.createMethod([], [], undefined, name, undefined, undefined, parameters, undefined, block);
+    static createSimpleMethod(name: string, block: ts.Block, parameters: ts.ParameterDeclaration[] = [], type?: ts.TypeNode): ts.MethodDeclaration {
+        return ts.factory.createMethodDeclaration(undefined, undefined, undefined, name, undefined, undefined, parameters, type, block);
     }
 
     /**
@@ -19,7 +21,7 @@ export class RefactorerUtils {
      * @returns {ts.ParameterDeclaration}
      */
     static createSimpleParameter(identifier: string, type: ts.TypeNode): ts.ParameterDeclaration {
-        return ts.createParameter([], [], undefined, identifier, undefined, type);
+        return ts.factory.createParameterDeclaration([], [], undefined, identifier, undefined, type);
     }
 
     /**
@@ -29,6 +31,6 @@ export class RefactorerUtils {
      * @returns {ts.CallExpression}
      */
     static createMethodCall(name: string, parameters: ts.Expression[] = []): ts.CallExpression {
-        return ts.createCall(ts.createPropertyAccessChain(ts.createThis(), undefined, ts.createIdentifier(name)), [], parameters);
+        return ts.factory.createCallExpression(ts.factory.createPropertyAccessChain(ts.factory.createThis(), undefined, ts.factory.createIdentifier(name)), [], parameters);
     }
 }

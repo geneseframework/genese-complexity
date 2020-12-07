@@ -55,6 +55,7 @@ export class AstFileReportService {
         this.registerPartial("cyclomaticBarchartScript", 'cyclomatic-barchart');
         this.registerPartial("cognitiveDoughnutScript", 'cognitive-doughnut');
         this.registerPartial("cyclomaticDoughnutScript", 'cyclomatic-doughnut');
+        this.registerPartial("prismScript", 'prism');
         this.registerPartial("method", 'methods');
         const reportTemplate = eol.auto(fs.readFileSync(`${Options.pathGeneseNodeJs}/json-ast-to-reports/templates/handlebars/file-report.handlebars`, 'utf-8'));
         this.template = Handlebars.compile(reportTemplate);

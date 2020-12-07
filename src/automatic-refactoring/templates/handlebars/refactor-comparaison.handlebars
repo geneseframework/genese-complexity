@@ -1,33 +1,48 @@
-<div id="{{methodName}}">
-    <table class="array-report method-table">
-        <thead class="method-thead">
-            <tr>
-                <th class="method-name-column" colspan="2">
-                    <span class="strong">{{title}}</span>
-                </th>
-            </tr>
-            <tr>
-                <th class="method-name-column">
-                    <span class="strong">Old code</span>
-                </th>
-                <th class="method-name-column">
-                    <span class="strong">New code</span>
-                </th>
-            </tr>
-            <tr>
-                <th class="method-name-column">
-                    <span class="strong">Complexity: {{oldComplexity}}</span>
-                </th>
-                <th class="method-name-column">
-                    <span class="strong">Complexity: {{newComplexity}}</span>
-                </th>
-            </tr>
-        </thead>
-        <tbody class="method-body">
-            <tr class="code-row">
-                {{>methodCode code=oldCode}}
-                {{>methodCode code=newCode}}
-            </tr>
-        </tbody>
-    </table>
+<div class="method-grid" id="{{title}}">
+    <div class="fileName strong">{{title}}</div>
+    <div class="old strong">Old Code</div>
+    <div class="new strong">New Code</div>
+    <div class="cpx oldCpx strong">
+        {{#each oldComplexity}}
+            <p>{{@key}}: {{this}}</p>
+        {{/each}}
+    </div>
+    <div class="cpx newCpx strong">
+        {{#each newComplexity}}
+            <p>{{@key}}: {{this}}</p>
+        {{/each}}
+    </div>
+    <div class="oldCode">{{>methodCode code=oldCode}}</div>
+    <div class="newCode">{{>methodCode code=newCode}}</div>
+<!--    <table class="array-report method-table">-->
+<!--        <thead class="method-thead">-->
+<!--        <tr>-->
+<!--            <th class="method-name-column" colspan="2">-->
+<!--                <span class="strong">{{title}}</span>-->
+<!--            </th>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--            <th class="method-name-column">-->
+<!--                <span class="strong">Old code</span>-->
+<!--            </th>-->
+<!--            <th class="method-name-column">-->
+<!--                <span class="strong">New code</span>-->
+<!--            </th>-->
+<!--        </tr>-->
+<!--        <tr>-->
+<!--            <th class="method-name-column">-->
+<!--                <span class="strong">Complexity: {{oldComplexity}}</span>-->
+<!--            </th>-->
+<!--            <th class="method-name-column">-->
+<!--                <span class="strong">Complexity: {{newComplexity}}</span>-->
+<!--            </th>-->
+<!--        </tr>-->
+<!--        </thead>-->
+<!--        <tbody class="method-body">-->
+<!--        <tr class="code-row">-->
+<!--            {{>methodCode code=oldCode}}-->
+<!--            {{>methodCode code=newCode}}-->
+<!--        </tr>-->
+<!--        </tbody>-->
+<!--    </table>-->
 </div>

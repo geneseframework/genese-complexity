@@ -5,8 +5,11 @@ export class ProjectService {
     public project: Project;
     public refactorProposals: RefactorProposal[] = [];
 
-    constructor(tsConfigFilePath: string) {
-        this.project = new Project({ tsConfigFilePath });
+    constructor(glob: string) {
+        this.project = new Project({
+            addFilesFromTsConfig: false
+        });
+        this.project.addSourceFilesAtPaths(glob);
     }
 
 

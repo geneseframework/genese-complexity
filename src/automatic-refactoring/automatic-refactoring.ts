@@ -13,7 +13,7 @@ import { BigIfElseRefactorer } from './refactorers/bigIfElse.refactorer';
 
 export class AutomaticRefactoring {
     static refactorers: (new (projectService: ProjectService) => Refactorer)[];
-    static readonly projectService: ProjectService = new ProjectService('tsconfig.json');
+    static projectService: ProjectService;
 
 
     static setRefactorer(...refactorers: (new (projectService: ProjectService) => Refactorer)[]): void {
@@ -21,11 +21,12 @@ export class AutomaticRefactoring {
     }
 
 
-    static start(astFolder: AstFolder): void {
+    static start(commandPath: string, pathToAnalyse: string): void {
+        this.projectService = new ProjectService(`${pathToAnalyse}/**/*.ts`)
         this.setRefactorer(BigIfElseRefactorer, UselessElseRefactorer);
 
         this.refactorFromSourceFile();
-        new RefactorReportService(this.projectService.refactorProposals, astFolder).generateRefactorReport();
+        new RefactorReportService(this.projectService.refactorProposals, commandPath).generateRefactorReport();
     }
 
     static refactorFromSourceFile(): void {

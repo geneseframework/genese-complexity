@@ -24,11 +24,11 @@ export class TernaryToNullishCoalescing extends Refactorer {
     /**
      * Copy current method then transform the copy to get refctored method
      * Put refactored method on current method object
-     * @param method the current method
      * @returns {void}
+     * @param node
      */
     refactor(node: Node): Node {
-        return node.transform((traversal: TransformTraversalControl) => {
+        const NODE = node.transform((traversal: TransformTraversalControl) => {
             const currentNode = Refactorer.wrapCurrentNode(node, traversal);
             if (Node.isConditionalExpression(currentNode)) {
                 const FIRST_MEMBER = currentNode.getChildAtIndex(0);
@@ -44,5 +44,6 @@ export class TernaryToNullishCoalescing extends Refactorer {
             }
             return currentNode.compilerNode;
         });
+        return NODE;
     }
 }

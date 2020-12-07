@@ -13,7 +13,7 @@ import { RefactorProposal } from '../models/refactor-proposal.model';
 export class RefactorReportService {
     private template: HandlebarsTemplateDelegate;
 
-    constructor(public systems: RefactorProposal[], private astFolder: AstFolder) {}
+    constructor(public systems: RefactorProposal[], private commandPath: string) {}
 
     get refactorProposals(): RefactorProposal[] {
         return this.systems;
@@ -26,7 +26,8 @@ export class RefactorReportService {
     generateRefactorReport(): void {
         this.registerPartial('refactorProposals', 'refactor-proposals');
         this.registerPartial('refactorComparaison', 'refactor-comparaison');
-        this.registerPartial('methodCode', 'method-script');
+        this.registerPartial('methodCode', 'method-code');
+        this.registerPartial('prismScript', 'prism');
 
         const TEMPLATE_PATH = `${Options.pathGeneseNodeJs}/automatic-refactoring/templates/handlebars/refactor-proposals.handlebars`;
         const REPORT_TEMPLATE = this.getFileFromPath(TEMPLATE_PATH);
@@ -39,9 +40,9 @@ export class RefactorReportService {
      * @returns {void}
      */
     private writeRefactorReport(): void {
-        const RELATIVE_ROOT = getRouteToRoot(this.astFolder?.relativePath);
+        const RELATIVE_ROOT = '.';
         const TEMPLATE = this.template({ proposals: this.refactorProposals, relativeRoot: RELATIVE_ROOT });
-        const RELATIVE_PATH = constructLink(this.astFolder?.relativePath);
+        const RELATIVE_PATH = constructLink('.');
         const OUT_DIR = constructLink(Options.pathOutDir);
         const PATH_REPORT = `${deleteLastSlash(OUT_DIR)}/${deleteLastSlash(RELATIVE_PATH)}/refactor-report.html`;
         fs.outputFileSync(PATH_REPORT, TEMPLATE, { encoding: 'utf-8' });

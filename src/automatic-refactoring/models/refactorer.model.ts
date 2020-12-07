@@ -4,15 +4,23 @@ import { ProjectService } from '../services/project.service';
 import { RefactorProposal } from './refactor-proposal.model';
 import { Transformer } from './transformer.model';
 import { ComplexityService } from '../services/complexity.service';
+import * as prettier from 'prettier';
+
+const prettierOptions: prettier.Options = {
+    tabWidth: 4,
+    parser: 'typescript',
+    singleQuote: true
+};
 
 export abstract class Refactorer {
-    private projectService: ProjectService;
+    protected projectService: ProjectService;
 
     abstract readonly REFACTORED_NODE_KIND: SyntaxKind;
 
     public nodes: Node[];
     public refactorProposals: RefactorProposal[] = [];
     public transformers: Transformer[];
+
 
     constructor(projectService: ProjectService) {
         this.projectService = projectService;
@@ -33,7 +41,7 @@ export abstract class Refactorer {
                 this.refactor(n);
                 this.processRefactoredNode(n, i);
                 return n;
-            })
+            });
         if (this.transformers) {
             this.applyTransformers();
         }
@@ -45,11 +53,15 @@ export abstract class Refactorer {
      */
     private applyTransformers(): void {
         this.nodes = this.transformers.map((t: Transformer, i) => {
-            const r = t.baseNode[t.nodeMethod]().transform(t.transformer);
-            r.formatText();
-            this.refactorProposals[i].newCode = r.getFullText();
+            const node = t.baseNode[t.nodeMethod]() as Node;
+            const cpx: {name: string, cpx: number}[] = t.transformer(t.baseNode[t.nodeMethod]());
+            node.formatText();
+            this.refactorProposals[i].newCode = node.getFullText();
             this.refactorProposals[i].usedTransformer = t;
-            return r;
+            cpx.forEach(comp => {
+                this.refactorProposals[i].newComplexity[comp.name] = comp.cpx;
+            })
+            return node;
         });
     }
 
@@ -58,14 +70,26 @@ export abstract class Refactorer {
      * Compute and store information about the refactored node
      * @param n
      * @param i
+     * @param cpx
      */
     private processRefactoredNode(n: Node, i: number) {
-        this.refactorProposals[i].newComplexity = ComplexityService.getCpxFromSourceCode(n.getFullText());
+        this.refactorProposals[i].newComplexity = {
+            [(n as MethodDeclaration).getStructure()['name']]: ComplexityService.getCpxFromSourceCode(n.getText())
+        };
         const existingRefactor = this.projectService.refactorProposals.find(er => er.id === this.refactorProposals[i].id);
         if (existingRefactor && existingRefactor.usedTransformer) {
             this.refactorProposals[i].oldCode = existingRefactor.oldCode;
+            this.refactorProposals[i].oldComplexity = existingRefactor.oldComplexity;
             const transformer = existingRefactor.usedTransformer;
-            n = n[transformer.nodeMethod]().transform(transformer.transformer);
+            const cpx: {name: string, cpx: number}[] = transformer.transformer(n[transformer.nodeMethod]());
+            this.refactorProposals[i].newComplexity = {
+                ...existingRefactor.newComplexity,
+                ...this.refactorProposals[i].newComplexity,
+            };
+            cpx.forEach(comp => {
+                this.refactorProposals[i].newComplexity[comp.name] = comp.cpx;
+            })
+            n = n[transformer.nodeMethod]();
         }
         n.formatText();
         this.refactorProposals[i].newCode = n.getFullText();
@@ -83,7 +107,7 @@ export abstract class Refactorer {
             newCode: undefined,
             title: (n as MethodDeclaration).getStructure()['name'],
             id: (n as MethodDeclaration).getStructure()['name'],
-            oldComplexity: ComplexityService.getCpxFromSourceCode(n.getFullText()),
+            oldComplexity: {[(n as MethodDeclaration).getStructure()['name']]: ComplexityService.getCpxFromSourceCode(n.getText())},
             newComplexity: undefined
         });
     }
