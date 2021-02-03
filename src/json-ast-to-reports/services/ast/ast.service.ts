@@ -76,7 +76,7 @@ er
      * @param astNode      // The node to analyse
      */
     static isDifferentLogicDoor(astNode: AstNode): boolean {
-        if (Ast.isBinary(astNode) && Ast.isLogicDoor(astNode.secondSon)) {
+        if (Ast.isBinary(astNode) && astNode.secondSon && Ast.isLogicDoor(astNode.secondSon)) {
             if (Ast.isBinary(astNode.parent)
                 && !Ast.isSameOperatorToken(astNode, astNode.parent)
             ) {

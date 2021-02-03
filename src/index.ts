@@ -17,6 +17,7 @@ const LANGUAGE = ARGS[1] ?? 'ts';
 const ENABLE_MARKDOWN_REPORT = ARGS[2] === 'true';
 const ENABLE_CONSOLE_REPORT = ARGS[3] === 'true';
 const ENABLE_REFACTORING = ARGS[4] === 'true';
+const WITHOUT_ANALYSIS = ARGS[5] === 'true';
 
 let pathToAnalyse: string;
 if (path.isAbsolute(PATH_TO_ANALYSE)) {
@@ -41,16 +42,18 @@ async function start(): Promise<number> {
         createOutDir();
     }
 
-    spinner.start('AST generation');
-    await useWorker(
-        `${__dirname}/workers/ast-worker.js`,
-        {
-            pathCommand: process.cwd(),
-            modifiedPath: pathToAnalyse,
-            pathGeneseNodeJs: __dirname,
-            language: LANGUAGE
-        });
-    spinner.succeed();
+    if (!WITHOUT_ANALYSIS) {
+        spinner.start('AST generation');
+        await useWorker(
+            `${__dirname}/workers/ast-worker.js`,
+            {
+                pathCommand: process.cwd(),
+                modifiedPath: pathToAnalyse,
+                pathGeneseNodeJs: __dirname,
+                language: LANGUAGE
+            });
+        spinner.succeed();
+    }
 
     spinner.start('Report generation');
     const reportResult: { message: any; astFolder: AstFolder } = await useWorker(
@@ -77,7 +80,9 @@ async function start(): Promise<number> {
         spinner.succeed();
     }
 
-    deleteFile('./json-ast.json');
+    if (!WITHOUT_ANALYSIS) {
+        deleteFile('./json-ast.json');
+    }
 
     if (reportResult.message && reportResult.message.length > 0) {
         console.log();
