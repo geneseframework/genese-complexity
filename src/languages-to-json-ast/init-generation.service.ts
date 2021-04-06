@@ -27,7 +27,6 @@ export class InitGenerationService {
             console.log('ERROR: no path.');
             return undefined;
         }
-        console.log(chalk.redBright('GEN ALLLLL'), path);
         return {
             astFolder: this.generateAstFolder(path, language)
         };
@@ -64,7 +63,6 @@ export class InitGenerationService {
             path: platformPath(path),
             astFiles: []
         };
-        console.log('\nPLATFORM PATH AST FOLDER: ', astFolder);
         let initService;
         switch (language) {
             case Language.JS:

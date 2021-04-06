@@ -47,12 +47,21 @@ async function start(): Promise<number> {
     }
 
     spinner.start('AST generation');
-    Options.setOptions(process.cwd(), pathToAnalyse, __dirname);
-    LanguageToJsonAst.start(Options.pathFolderToAnalyze, LANGUAGE as Language);
+    generateJsonAst();
     spinner.succeed();
     spinner.start('Report generation');
-    JsonAstToReports.start(Options.pathCommand, undefined, ENABLE_MARKDOWN_REPORT, ENABLE_CONSOLE_REPORT);
+    generateReport();
     spinner.succeed();
     return 0;
+}
 
+
+function generateJsonAst(): void {
+    Options.setOptions(process.cwd(), pathToAnalyse, __dirname);
+    LanguageToJsonAst.start(Options.pathFolderToAnalyze, LANGUAGE as Language);
+}
+
+
+function generateReport(): void {
+    JsonAstToReports.start(Options.pathCommand, undefined, ENABLE_MARKDOWN_REPORT, ENABLE_CONSOLE_REPORT);
 }

@@ -21,37 +21,16 @@ export class LanguageToJsonAst {
      * @returns void
      */
     static start(pathToAnalyze: string, language?: Language): void {
-        console.log(chalk.yellowBright('START LANG TO ASTTTTT'), pathToAnalyze, language);
         let jsonAst: JsonAstInterface;
-        const path = pathToAnalyze.slice(-1) === '/' ? pathToAnalyze.slice(0, -1) : pathToAnalyze;
         switch (language) {
             case Language.TS:
-<<<<<<< Updated upstream
-                project.addSourceFilesAtPaths(`${path}/**/*.ts`);
-=======
-                console.log(chalk.blueBright('PROJ LENGTHHHH BEFORE'), project.getSourceFiles().length);
-                console.log(chalk.blueBright('PATH TO ANALYZE'), pathToAnalyze);
-                console.log(chalk.blueBright('PATH TO ANALYZE GLOBBBB'), `${pathToAnalyze}**/*.ts`);
                 project.addSourceFilesAtPaths(`${pathToAnalyze}**/*.ts`);
-                console.log(chalk.cyanBright('PROJ LENGTHHHH'), project.getSourceFiles().length);
->>>>>>> Stashed changes
                 jsonAst = LanguageToJsonAst.generateFromFiles(pathToAnalyze, language);
                 break
             case Language.JAVA:
                 jsonAst = LanguageToJsonAst.generateFromFiles(pathToAnalyze, language);
                 break;
             case Language.JS:
-<<<<<<< Updated upstream
-                project.addSourceFilesAtPaths(`${path}/**/*.js`);
-                jsonAst = LanguageToJsonAst.generateFromFiles(pathToAnalyze, language);
-                break;
-            case Language.TSX:
-                project.addSourceFilesAtPaths(`${path}/**/*.tsx`);
-                jsonAst = LanguageToJsonAst.generateFromFiles(pathToAnalyze, language);
-                break;
-            case Language.JSX:
-                project.addSourceFilesAtPaths(`${path}/**/*.jsx`);
-=======
                 project.addSourceFilesAtPaths(`${pathToAnalyze}**/*.js`);
                 jsonAst = LanguageToJsonAst.generateFromFiles(pathToAnalyze, language);
                 break;
@@ -61,16 +40,13 @@ export class LanguageToJsonAst {
                 break;
             case Language.JSX:
                 project.addSourceFilesAtPaths(`${pathToAnalyze}**/*.jsx`);
->>>>>>> Stashed changes
                 jsonAst = LanguageToJsonAst.generateFromFiles(pathToAnalyze, language);
                 break;
             default:
                 jsonAst = LanguageToJsonAst.generateFromAllFiles(pathToAnalyze);
                 break;
         }
-        console.log(chalk.blueBright('BEFORE CREATE FILEEEEE'), pathToAnalyze);
         createFile(`./json-ast.json`, JsonService.prettifyJson(jsonAst));
-        console.log(chalk.blueBright('END LANG TO ASTTTTT'), pathToAnalyze);
     }
 
 
@@ -86,7 +62,6 @@ export class LanguageToJsonAst {
      * @returns JsonAstInterface
      */
     private static generateFromFiles(pathToAnalyze: string, language: Language): JsonAstInterface {
-        console.log(chalk.greenBright('GEN FROM FILESSSSS'), pathToAnalyze, language);
         const jsonAst: JsonAstInterface = {
             astFolder: undefined
         };
