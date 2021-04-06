@@ -182,8 +182,12 @@ export function copyFile(originPath: string, targetPath: string): void {
 
 
 export function platformPath(path: string): string {
+    console.log('\nPLATFORM PATH', path)
     const modifiedPath = path.split('/').filter(e => e !== '.').join('/');
-    return WINDOWS ? windowsPath(modifiedPath) : modifiedPath;
+    console.log('\nPLATFORM PATH modifiedPath', modifiedPath)
+    const zzz = WINDOWS ? windowsPath(modifiedPath) : modifiedPath;
+    console.log('\nPLATFORM PATH returns', zzz)
+    return zzz
 }
 
 
