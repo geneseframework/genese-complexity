@@ -21,14 +21,12 @@ const ENABLE_MARKDOWN_REPORT = ARGS[2] === 'true';
 const ENABLE_CONSOLE_REPORT = ARGS[3] === 'true';
 const ENABLE_REFACTORING = ARGS[4] === 'true';
 
-console.log(chalk.yellowBright('PATH_TO_ANALYSE'), PATH_TO_ANALYSE);
 let pathToAnalyse: string;
 if (path.isAbsolute(PATH_TO_ANALYSE)) {
     pathToAnalyse = PATH_TO_ANALYSE;
 } else {
     pathToAnalyse = `${process.cwd()}/${PATH_TO_ANALYSE}`.split('/').filter(e => e !== '.').join('/');
 }
-console.log(chalk.yellowBright('pathToAnalyse'), pathToAnalyse);
 
 
 start()
@@ -47,21 +45,60 @@ async function start(): Promise<number> {
     }
 
     spinner.start('AST generation');
-    generateJsonAst();
+    await useWorker(
+        `${__dirname}/workers/ast-worker.js`,
+        {
+            pathCommand: process.cwd(),
+            modifiedPath: pathToAnalyse,
+            pathGeneseNodeJs: __dirname,
+            language: LANGUAGE
+        });
     spinner.succeed();
     spinner.start('Report generation');
-    generateReport();
+    const reportResult: { message: any; astFolder: AstFolder } = await useWorker(
+        `${__dirname}/workers/report-worker.js`,
+        {
+            pathCommand: process.cwd(),
+            modifiedPath: pathToAnalyse,
+            pathGeneseNodeJs: __dirname,
+            markdown: ENABLE_MARKDOWN_REPORT,
+            consoleMode: ENABLE_CONSOLE_REPORT,
+        });
     spinner.succeed();
+
+    if (reportResult.message?.length > 0) {
+        console.log();
+        if (typeof reportResult.message === 'object') {
+            console.table(reportResult.message, ['filename', 'methodName', 'cpxIndex']);
+        } else {
+            const stats: any = reportResult.astFolder['_stats'];
+            console.log(chalk.blueBright('Files : '), stats.numberOfFiles);
+            console.log(chalk.blueBright('Methods : '), stats.numberOfMethods);
+            console.log(chalk.blueBright('Cognitive Complexity : '), stats.totalCognitiveComplexity);
+            console.log(chalk.blueBright('Cyclomatic Complexity : '), stats.totalCyclomaticComplexity);
+            console.log(reportResult.message);
+        }
+        if (ENABLE_CONSOLE_REPORT) {
+            return 1;
+        }
+    }
     return 0;
 }
 
 
-function generateJsonAst(): void {
-    Options.setOptions(process.cwd(), pathToAnalyse, __dirname);
-    LanguageToJsonAst.start(Options.pathFolderToAnalyze, LANGUAGE as Language);
-}
+function useWorker(filepath, data): any {
+    return new Promise((resolve, reject) => {
+        const worker = new Worker(filepath, {workerData: data});
 
+        worker.on('message', message => {
+            resolve(message);
+        });
 
-function generateReport(): void {
-    JsonAstToReports.start(Options.pathCommand, undefined, ENABLE_MARKDOWN_REPORT, ENABLE_CONSOLE_REPORT);
+        worker.on('error', reject);
+        worker.on('exit', code => {
+            if (code !== 0) {
+                reject(new Error(`Worker stopped with exit code ${code}`));
+            }
+        });
+    });
 }
